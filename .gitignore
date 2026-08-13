@@ -6,6 +6,8 @@ arquivos_velhos
 2026-08-11_comentarios_bootstrap.csv
 2026-08-12_comentarios_bootstrap.csv
 2026-08-13_comentarios_bootstrap.csv
+2026-08-13_comentarios_custom.csv
+todos_comentarios.parquet
 videos_ids_conhecidos.csv
 coleta_log.csv
 .Rproj.user
