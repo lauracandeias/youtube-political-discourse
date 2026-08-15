@@ -1,138 +1,132 @@
 # YouTube Political Discourse
 
-Este repositório reúne os códigos, dados e procedimentos utilizados para a **coleta, organização e processamento de dados políticos do YouTube**, com foco na análise do discurso político produzido por atores políticos e nas interações dos usuários na plataforma.
-
-O projeto contempla a coleta de **metadados de vídeos, comentários e transcrições**, além de rotinas de tratamento e consolidação das bases para análise.
-
-> **Fluxo geral:** identificação dos canais → coleta de vídeos → coleta de comentários → transcrição dos vídeos → tratamento e consolidação das bases → disponibilização dos dados finais.
+Repositório com os códigos e dados utilizados para a coleta, organização e preparação de bases de dados sobre discurso político no YouTube. O projeto reúne informações sobre canais de políticos, vídeos publicados, transcrições de vídeos e comentários de usuários. O projeto busca possibilitar a realização de análises de conteúdo e estudos sobre comportamento digital de lideranças políticas. 
 
 ## Objetivo
 
-O objetivo deste projeto é construir uma base de dados sistemática sobre o discurso político no YouTube, permitindo analisar tanto o conteúdo publicado por atores políticos quanto as reações dos usuários na seção de comentários.
+Construir bases de dados de discurso de atores políticos brasileiros no YouTube, reunindo:
 
-A estrutura foi desenvolvida para facilitar a **reprodutibilidade da coleta e do processamento**, mantendo separados os scripts de aquisição, processamento e os dados resultantes.
+- informações dos canais selecionados;
+- metadados dos vídeos publicados;
+- métricas de interação dos vídeos;
+- transcrições do conteúdo;
+- rotinas reproduzíveis de coleta, transcrição e consolidação.
 
-## Dados
+O projeto está em andamento e as base de dados ainda serão expandidas.
 
-O projeto trabalha principalmente com três tipos de informação:
+O fluxo geral do projeto é:
 
-* **Metadados dos vídeos:** informações sobre os vídeos publicados pelos canais selecionados;
-* **Comentários:** comentários associados aos vídeos coletados;
-* **Transcrições:** texto transcrito do conteúdo audiovisual dos vídeos.
+**identificação dos canais → coleta de vídeos → coleta de comentários → transcrição dos vídeos → ETL e consolidação → bases finais para análise.**
 
-As bases são organizadas em diferentes etapas de processamento, desde os arquivos resultantes das coletas até as bases finais utilizadas para análise.
-
-## Estrutura
+## Estrutura do repositório
 
 ```text
 youtube-political-discourse/
 │
 ├── dados/
-│   ├── final/                    # Bases finais processadas
-│   └── videos_historico/         # Metadados e histórico de vídeos
+│   ├── final/
+│   │   ├── canais_stats.csv
+│   │   ├── videos_por_canal.csv
+│   │   └── videos_transcricoes.parquet
+|   |   └── comentarios.parquet*
+│   │
+│   └── videos_historico/
+│       └── 2026-08-12-jair_bolsonaro_bootstrap.csv
+│       └── 2026-08-12-lula_bootstrap.csv
+│       └── 2026-08-12-renan_santos_bootstrap.csv
+│       └── 2026-08-12-romeu_zema_bootstrap.csv
+│       └── 2026-08-12-ronaldo_caiado_bootstrap.csv
 │
-├── coleta_comentarios_bootstrap.R
-│                                 # Coleta inicial de comentários
+├── scripts/
+│   ├── 01_coleta_comentarios_bootstrap.R
+│   ├── 02_coleta_comentarios_ids.R
+│   ├── 03_transcrever_videos_youtube.ipynb
+│   └── 04_etl_dados_youtube.R
 │
-├── coleta_comentarios_ids.R
-│                                 # Coleta de comentários a partir de
-│                                 # video_ids específicos
+├── documentos/
+│   ├── codebook_canais_stats.md
+│   ├── codebook_comentarios.md
+│   ├── codebook_videos_por_canal.md
+│   └── codebook_videos_transcricoes.md
+│   └── guia_criar_chave_API_youtube.pdf
 │
-├── etl_dados_youtube.R           # ETL e consolidação das bases
-│
-├── transcrever_videos_youtube.ipynb
-│                                 # Transcrição dos vídeos
-│
-├── transcricoes_completo.csv     # Transcrições processadas
-│
-├── yt_data_collection.Rproj      # Projeto R
-│
+├── .gitattributes
 ├── .gitignore
-└── README.md
+├── README.md
+└── yt_data_collection.Rproj
 ```
 
-A estrutura atual do repositório contém os scripts de coleta e processamento e as pastas de dados utilizadas pelo projeto.
+Os scripts estão numerados de acordo com a ordem geral do fluxo de processamento.
 
-## Fluxo de processamento
+## Bases finais
 
-### 1. Coleta de vídeos e metadados
+As bases disponibilizadas em `dados/final/` são:
 
-A primeira etapa consiste na identificação dos vídeos publicados pelos canais selecionados e na coleta de seus respectivos metadados.
+| Arquivo | Unidade de análise | Descrição |
+|---|---|---|
+| `canais_stats.csv` | Canal | Estatísticas dos canais selecionados e informações de identificação do ator político |
+| `videos_por_canal.csv` | Vídeo | Metadados e métricas de todos os vídeos já publicados nos canais |
+| `videos_transcricoes.parquet` | Vídeo | Metadados dos vídeos combinados às respectivas transcrições |
+| `comentarios.parquet` | Comentários de usuários | Comentários publicados nos vídeos selecionados |
 
-Os metadados são utilizados como base para as etapas posteriores, especialmente para a identificação dos vídeos dos quais serão coletados comentários e transcrições.
+Os codebooks dessas bases estão em `codebooks/`.
 
-Os arquivos relacionados ao histórico de vídeos são armazenados em:
+### `canais_stats.csv`
 
-```text
-dados/videos_historico/
-```
+Base em nível de canal. Contém o identificador do canal, nome, data de criação, número de inscritos, visualizações totais, número de vídeos e informações sobre o ator político associado. A data de coleta indica quando as estatísticas foram consultadas.
 
-### 2. Coleta de comentários
+### `videos_por_canal.csv`
 
-A coleta de comentários é realizada por meio dos scripts:
+Base em nível de vídeo. Reúne metadados e métricas públicas de todos os vídeos já publicados nos canais até a data da coleta, além da identificação do canal, do ator político, partido e cargo.
 
-```text
-coleta_comentarios_bootstrap.R
-coleta_comentarios_ids.R
-```
+### `videos_transcricoes.parquet`
 
-O primeiro script é utilizado para as coletas iniciais de comentários.
+Base em nível de vídeo que combina os metadados dos 100 vídeos mais recentes de cada canal analisado com as suas transcrições. O ETL classifica como `erro_transcricao` os casos em que não há transcrição disponível.
 
-O segundo permite realizar coletas direcionadas a partir de um conjunto específico de `video_id`, reduzindo o consumo desnecessário da quota da API do YouTube. O script recebe os IDs dos vídeos e coleta exclusivamente os comentários associados a eles.
+### `comentarios.parquet`
 
-As coletas são armazenadas em:
+A base contém os comentários de usuários coletados a partir dos 100 vídeos mais recentes de cada canal. Foram selecionados até 50 comentários por vídeo. A base final possui o total 19.334 observações (comentários) e, devido ao seu tamanho, o arquivo não é armazenado diretamente neste repositório GitHub.
 
-```text
-dados/comentarios/
-```
+A versão completa da base está disponível mediante pedido às autoras.
 
-Os arquivos de comentários são identificados pela data da coleta, permitindo manter um histórico das diferentes rodadas.
+O codebook da base está disponível em:
 
-### 3. Transcrição dos vídeos
+`documentos/codebook_comentarios.md`
 
-As transcrições são produzidas por meio do notebook:
+## Coleta e processamento
 
-```text
-transcrever_videos_youtube.ipynb
-```
+### 1. Coleta de comentários
 
-O notebook realiza o processamento dos vídeos e gera as transcrições utilizadas nas etapas posteriores da pesquisa.
+`01_coleta_comentarios_bootstrap.R`
 
-As transcrições processadas são armazenadas na base:
+Realiza a coleta inicial de comentários dos vídeos selecionados. Para este projeto, adotou-se o limite do máximo de 50 comentários por vídeo, mas esse valor é ajustável no script.
 
-```text
-transcricoes_completo.csv
-```
+`02_coleta_comentarios_ids.R`
 
-### 4. ETL e consolidação
+Script adicional que permite coletar comentários a partir de uma lista específica de `video_id`, evitando novas consultas desnecessárias a vídeos que já foram processados e uma busca mais direcionada a vídeos específicos.
 
-O script:
+### 2. Transcrição
 
-```text
-etl_dados_youtube.R
-```
+`03_transcrever_videos_youtube.ipynb`
 
-é responsável pela consolidação e preparação das bases para disponibilização e análise.
+Notebook utilizado para transcrever os vídeos. A transcrição é posteriormente integrada aos metadados dos vídeos pelo processo de ETL. Um guia mais detalhado desse script está em `documentos/guia_03_transcrever_videos_youtube.md`
 
-Entre os procedimentos realizados estão:
+### 3. ETL
 
-* leitura das diferentes rodadas de coleta;
-* união das bases;
-* remoção de informações de identificação dos autores dos comentários;
-* remoção de comentários duplicados;
-* organização das variáveis;
-* consolidação das bases finais;
-* exportação dos dados em formatos apropriados para análise.
+`04_etl_dados_youtube.R`
 
-Por exemplo, as diferentes rodadas de comentários são combinadas e os registros são deduplicados utilizando `comment_id`.
+Responsável pela consolidação e preparação das bases para análise. Entre os procedimentos estão:
 
-## Como reproduzir
+- união de diferentes rodadas de coleta;
+- padronização dos nomes das variáveis;
+- integração de metadados e transcrições;
+- exportação das bases finais em formatos adequados para análise.
 
-### Requisitos
+## Reprodutibilidade
 
-Para executar as etapas de tratamento dos dados em R, recomenda-se utilizar uma versão recente do R e do RStudio.
+O projeto separa as etapas de aquisição, processamento e disponibilização dos dados. As bases históricas permitem preservar as diferentes rodadas de coleta, enquanto as bases em `dados/final/` correspondem aos produtos consolidados utilizados para análise.
 
-Os principais pacotes utilizados incluem:
+Para reproduzir o processamento em R, recomenda-se uma versão recente do R/RStudio e os pacotes utilizados pelos scripts, especialmente:
 
 ```r
 install.packages(c(
@@ -144,149 +138,47 @@ install.packages(c(
 ))
 ```
 
-O notebook de transcrição possui dependências próprias relacionadas ao processamento de áudio e ao modelo de transcrição.
+O notebook de transcrição possui dependências próprias para processamento de vídeo/áudio e transcrição automática.
 
-### 1. Configuração da API do YouTube
+## API e credenciais
 
-As rotinas de coleta utilizam autenticação da API do YouTube.
+As rotinas de coleta dependem da autenticação da API do YouTube. Credenciais não devem ser armazenadas no repositório.
 
-As credenciais devem ser armazenadas como variáveis de ambiente e **não devem ser incluídas no repositório**.
-
-Por exemplo:
+Quando utilizadas, as credenciais devem ser configuradas no ambiente local, por exemplo:
 
 ```text
 YOUTUBE_APP_ID
 YOUTUBE_APP_SECRET
 ```
 
-O script de coleta recupera essas credenciais a partir do ambiente local.
+Os nomes exatos das variáveis devem seguir a configuração adotada pelos scripts de coleta.
 
-### 2. Coletar comentários
+Caso você ainda não tenha acesso às chaves da API do YouTube necessárias, preparamos um guia em: `documentos/guia_criar_chave_API_youtube.pdf`
 
-Depois de configurar a autenticação, execute:
-
-```r
-source("coleta_comentarios_bootstrap.R")
-```
-
-ou, para uma coleta direcionada a vídeos específicos:
-
-```r
-source("coleta_comentarios_ids.R")
-```
-
-Os arquivos gerados devem ser armazenados em:
-
-```text
-dados/comentarios/
-```
-
-### 3. Transcrever vídeos
-
-Abra:
-
-```text
-transcrever_videos_youtube.ipynb
-```
-
-e execute as células do notebook conforme as configurações definidas para a rodada de processamento.
-
-### 4. Executar o ETL
-
-Após a conclusão das coletas, execute:
-
-```r
-source("etl_dados_youtube.R")
-```
-
-O script irá consolidar as diferentes rodadas de coleta e produzir as bases finais.
-
-## Organização das bases
-
-As bases são organizadas segundo o estágio de processamento:
-
-| Diretório                   | Conteúdo                                              |
-| --------------------------- | ----------------------------------------------------- |
-| `dados/videos_historico/`   | Metadados e histórico dos vídeos                      |
-| `dados/final/`              | Bases finais processadas                              |
-| `dados/comentarios/`        | Arquivos resultantes das diferentes rodadas de coleta |
-| `transcricoes_completo.csv` | Base consolidada de transcrições                      |
-
-## Controle de duplicidades
-
-A consolidação dos comentários utiliza o identificador único `comment_id` para evitar que o mesmo comentário seja incorporado mais de uma vez quando diferentes rodadas de coleta se sobrepõem.
-
-```r
-distinct(comment_id, .keep_all = TRUE)
-```
-
-Essa estratégia permite combinar diferentes rodadas de coleta sem duplicar observações.
-
-## Privacidade e dados
-
-Os dados coletados do YouTube podem conter informações potencialmente identificáveis.
-
-Por esse motivo, informações desnecessárias para a análise devem ser removidas antes da disponibilização pública das bases.
-
-Em particular, o processo de ETL atualmente remove a variável referente ao autor do comentário:
-
-```r
-select(-author)
-```
-
-Credenciais de API, arquivos de configuração locais, logs e outros arquivos que contenham informações sensíveis **não devem ser versionados no Git**.
-
-## Reprodutibilidade
-
-O projeto busca manter uma separação entre:
-
-1. **dados brutos**, provenientes das APIs e demais fontes;
-2. **scripts de coleta**, responsáveis pela aquisição;
-3. **scripts de processamento**, responsáveis pelo tratamento e consolidação;
-4. **dados finais**, utilizados nas análises.
-
-As diferentes rodadas de coleta são identificadas por data. Isso permite preservar o histórico do processo e reconstruir a origem dos dados utilizados em cada etapa.
 
 ## Limitações
 
-A coleta de dados do YouTube está sujeita às limitações da API e às condições de disponibilidade dos conteúdos na plataforma.
+A coleta está sujeita às limitações da API do YouTube e às condições de disponibilidade dos conteúdos. Entre as principais limitações estão:
 
-Entre as principais limitações estão:
+- limites de quota da API;
+- vídeos removidos, privados ou indisponíveis;
+- comentários removidos ou desabilitados;
+- alterações posteriores nas métricas dos vídeos;
+- limitações para recuperação histórica;
+- falhas durante coleta ou transcrição;
+- possíveis diferenças entre uma nova consulta à API e os dados originalmente coletados.
 
-* limites de quota da API;
-* disponibilidade dos vídeos e comentários;
-* comentários removidos ou desabilitados;
-* alterações posteriores no conteúdo publicado;
-* limitações na recuperação histórica de determinados dados;
-* eventuais falhas durante a coleta ou transcrição.
-
-Por isso, uma reprodução exata dos resultados pode exigir o uso dos mesmos arquivos coletados e versionados para determinada etapa, e não necessariamente uma nova consulta à API.
+Por isso, a reprodução exata dos resultados deve utilizar, sempre que possível, os arquivos históricos e as bases finais disponibilizadas no repositório.
 
 ## Autoria
 
-**Laura Candeias**
+**Laura Candeias**  
 **Tássia Melo**
 
-Este projeto foi desenvolvido no contexto de pesquisa acadêmica sobre discurso político e comportamento político no YouTube.
+Projeto desenvolvido no contexto de pesquisa acadêmica sobre discurso político e comportamento político no YouTube.
 
-## Inteligência Artificial
+## Uso de inteligência artificial
 
-Ferramentas de inteligência artificial foram utilizadas como apoio ao desenvolvimento do projeto, incluindo assistência na escrita e revisão de código, documentação e resolução de problemas técnicos.
+Ferramentas de inteligência artificial foram utilizadas como apoio ao desenvolvimento do projeto, incluindo assistência na revisão de escrita, documentação, revisão de código e resolução de problemas técnicos.
 
-A estrutura metodológica, as decisões de pesquisa, os procedimentos de coleta e o processamento final dos dados são de responsabilidade das autoras e devem ser revisados e validados antes da utilização dos resultados.
-
-## Citação
-
-Se você utilizar este código ou os dados produzidos por este projeto, recomenda-se citar o repositório:
-
-> Candeias, Laura; Melo, Tássia. *YouTube Political Discourse*. GitHub. Disponível em: https://github.com/lauracandeias/youtube-political-discourse.
-
-## Licença
-
-A licença do projeto deverá ser definida de acordo com as condições de disponibilização dos códigos e dos dados.
-
----
-
-**Repositório:**
-https://github.com/lauracandeias/youtube-political-discourse
-
+As decisões metodológicas, as escolhas de pesquisa, os procedimentos de coleta e a validação dos dados são de responsabilidade das autoras.

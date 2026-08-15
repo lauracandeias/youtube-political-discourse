@@ -45,7 +45,7 @@ todos_comentarios <- bind_rows(comentarios1, comentarios2, comentarios3, comenta
 
 write_parquet(
   todos_comentarios,
-  here("dados/final/todos_comentarios.parquet")
+  here("dados/final/comentarios.parquet")
 )
 
 ## Metadados dos vídeos
