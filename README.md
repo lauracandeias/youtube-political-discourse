@@ -48,6 +48,7 @@ youtube-political-discourse/
 │   ├── codebook_comentarios.md
 │   ├── codebook_videos_por_canal.md
 │   └── codebook_videos_transcricoes.md
+|   └── guia_03_transcrever_videos_youtube.md
 │   └── guia_criar_chave_API_youtube.pdf
 │
 ├── .gitattributes
